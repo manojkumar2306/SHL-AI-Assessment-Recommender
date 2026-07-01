@@ -23,5 +23,12 @@ def chat(request: ChatRequest):
         message.model_dump()
         for message in request.messages
     ]
+@app.get("/")
+def home():
+    return {
+        "message": "Welcome to the SHL AI Assessment Recommendation API",
+        "docs": "/docs",
+        "health": "/health"
+    }
 
     return chatbot.chat(messages)
