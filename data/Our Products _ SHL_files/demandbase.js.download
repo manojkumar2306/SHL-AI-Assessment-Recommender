@@ -1,0 +1,89 @@
+const l = () => (console.log("mutationObserver"), new Promise((e) => {
+  const o = document.querySelector(".js-demand-base-entry");
+  if (!o) return e(null);
+  const t = o.innerText.trim();
+  if (t)
+    return console.log("demandbaseObserver: already populated", t), e(t);
+  const s = (r) => {
+    console.log(r);
+    for (const n of r)
+      if (n.type === "characterData" || n.type === "childList") {
+        console.log(
+          "demandbaseObserver: TRIGGERED! ",
+          o.innerText
+        ), a.disconnect(), e(o.innerText.trim());
+        break;
+      }
+  }, a = new MutationObserver(s);
+  a.observe(o, {
+    characterData: !0,
+    childList: !0,
+    subtree: !0
+  });
+})), u = () => {
+  const e = window.location.search, o = new URLSearchParams(e);
+  return o.get("demandbasetest") ? o.get("demandbasetest") : !1;
+}, p = async (e, o = {}) => {
+  try {
+    const t = await fetch(e, o);
+    if (!t.ok)
+      throw new Error(`Err status: ${t.status}`);
+    return await t.text();
+  } catch (t) {
+    throw console.error("Fetch Popup Err:", t), t;
+  }
+}, m = () => {
+  sessionStorage.setItem("demandbase_popupdismissed", "true");
+}, w = () => sessionStorage.getItem("demandbase_popupdismissed", "true") ? !0 : sessionStorage.getItem("demandbase_popupviewed") === "true", b = (e) => {
+  e.querySelector(".js-demand-base-popup-close").addEventListener("click", () => {
+    m(), e.classList.remove("-show");
+  });
+}, i = (e) => {
+  if (window.scrollY > 700) {
+    e(!0);
+    return;
+  }
+  const s = ((a, r) => {
+    let n;
+    return function() {
+      clearTimeout(n), n = setTimeout(a, r);
+    };
+  })(() => {
+    console.log("window.scrollY", window.scrollY), console.log("SCROLL_DISTANCE", 700), window.scrollY > 700 && (window.removeEventListener("scroll", s), e(!0));
+  }, 100);
+  window.addEventListener("scroll", s);
+}, g = "/api/demandbasecontent/", c = u(), d = (e) => {
+  if (console.log("initDemandbase"), !e) return;
+  w() || p(g + e).then((t) => {
+    const r = new DOMParser().parseFromString(
+      t,
+      "text/html"
+    ).getElementById("demand-base-popup");
+    if (console.log("demandbase dry run test response:", r), r) {
+      const n = document.importNode(
+        r,
+        !0
+      );
+      document.body.appendChild(n), b(n), setTimeout(() => {
+        n.classList.add("-show");
+      }, 500);
+    }
+  }).catch((t) => {
+    console.error("Error during dry run test:", t);
+  });
+};
+c ? i(() => {
+  console.log(
+    "Demandbase running dry run with:",
+    c
+  ), d(c);
+}) : window.addEventListener("CookiebotOnAccept", () => {
+  console.log("Inside cookie bot accept listener"), window.Cookiebot.consent.marketing && l().then((e) => {
+    console.log(
+      "Demandbase company account returned!!:",
+      e
+    ), i(() => {
+      d(e);
+    });
+  });
+});
