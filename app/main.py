@@ -30,5 +30,12 @@ def home():
         "docs": "/docs",
         "health": "/health"
     }
-
+@app.get("/")
+def home():
+    return {
+        "project": "SHL AI Assessment Recommendation Chatbot",
+        "status": "Running",
+        "docs": "/docs",
+        "health": "/health"
+    }
     return chatbot.chat(messages)
